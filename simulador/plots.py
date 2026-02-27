@@ -51,9 +51,8 @@ def _build_figure(df_res, config):
     y3_max = max(pv.max(), consumo.max()) * 1.05
 
     fig.update_layout(
-        title="Resultados simulación: SOC vs Precio vs Producción FV vs Consumo",
         hovermode="x unified",
-        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="left", x=0),
+        legend=dict(orientation="h", yanchor="top", y=-0.12, xanchor="left", x=0),
 
         xaxis=dict(
             title="Tiempo",
@@ -98,7 +97,7 @@ def _build_figure(df_res, config):
             showgrid=False
         ),
 
-        margin=dict(r=110, l=70, t=70, b=60)
+        margin=dict(r=110, l=70, t=30, b=120)
     )
 
     return fig

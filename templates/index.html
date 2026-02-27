@@ -233,37 +233,37 @@
         <div class="kpi-grid" id="kpi-bateria"></div>
       </div>
 
-      <!-- Gráfica interactiva -->
-      <div class="chart-wrapper">
-        <div id="chart-container"></div>
-      </div>
-
-      <!-- Descargas -->
-      <div class="download-row">
-        <button class="btn-secondary" id="btn-download-excel" disabled>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-            <polyline points="7 10 12 15 17 10"/>
-            <line x1="12" y1="15" x2="12" y2="3"/>
-          </svg>
-          Descargar Excel
-        </button>
-        <button class="btn-secondary" id="btn-download-html" disabled>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-            <polyline points="7 10 12 15 17 10"/>
-            <line x1="12" y1="15" x2="12" y2="3"/>
-          </svg>
-          Descargar Gráfica
-        </button>
-      </div>
-
     </div><!-- /results-content -->
   </section>
 
 </main>
+
+<!-- ── Gráfica + descargas (ancho completo) ───────── -->
+<div class="chart-section" id="chart-section">
+  <div class="chart-wrapper">
+    <div id="chart-container"></div>
+  </div>
+  <div class="download-row">
+    <button class="btn-secondary" id="btn-download-excel" disabled>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+        <polyline points="7 10 12 15 17 10"/>
+        <line x1="12" y1="15" x2="12" y2="3"/>
+      </svg>
+      Descargar Excel
+    </button>
+    <button class="btn-secondary" id="btn-download-html" disabled>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+        <polyline points="7 10 12 15 17 10"/>
+        <line x1="12" y1="15" x2="12" y2="3"/>
+      </svg>
+      Descargar Gráfica
+    </button>
+  </div>
+</div>
 
 <script>
 // ── Metadatos de los 11 KPIs ─────────────────────────────────────────────────
@@ -338,6 +338,7 @@ function setLoading(loading) {
 function showResults() {
   document.getElementById("results-empty").style.display = "none";
   document.getElementById("results-content").classList.add("visible");
+  document.getElementById("chart-section").classList.add("visible");
   document.querySelector(".app-layout").classList.add("has-results");
   document.querySelector(".form-tagline").style.display = "none";
 }
@@ -348,6 +349,8 @@ function showError(msg) {
   banner.classList.add("visible");
   document.getElementById("results-empty").style.display = "none";
   document.getElementById("results-content").classList.remove("visible");
+  // Asegura que el panel derecho sea visible para que se vea el error
+  document.querySelector(".app-layout").classList.add("has-results");
 }
 
 function clearError() {

@@ -439,8 +439,18 @@ details[open] > .advanced-summary .chevron {
 
 #chart-container {
   width: 100%;
-  height: 520px;
+  height: 560px;
 }
+
+/* ── Sección gráfica ancho completo ─────────────── */
+.chart-section {
+  display: none;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 32px 64px;
+}
+
+.chart-section.visible { display: block; }
 
 /* ── Botones de descarga ─────────────────────────── */
 .download-row {
