@@ -56,7 +56,7 @@ def _build_figure(df_res, config):
 
         xaxis=dict(
             title="Tiempo",
-            domain=[0.06, 0.86],
+            domain=[0.05, 0.90],
             rangeselector=dict(
                 buttons=list([
                     dict(count=24, label="24h", step="hour", stepmode="backward"),
@@ -92,12 +92,12 @@ def _build_figure(df_res, config):
             overlaying="y",
             side="right",
             anchor="free",
-            position=0.98,
+            position=0.97,
             range=[0, y3_max],
             showgrid=False
         ),
 
-        margin=dict(r=110, l=70, t=30, b=120)
+        margin=dict(r=80, l=60, t=30, b=120)
     )
 
     return fig

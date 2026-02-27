@@ -411,6 +411,11 @@ document.getElementById("sim-form").addEventListener("submit", async (e) => {
     renderKPIs(data.kpis);
 
     const fig = JSON.parse(data.plot_json);
+    // Plotly serializa width/height fijos; los eliminamos para que
+    // la gráfica ocupe todo el ancho del contenedor CSS.
+    delete fig.layout.width;
+    delete fig.layout.height;
+    fig.layout.autosize = true;
     Plotly.react("chart-container", fig.data, fig.layout, {
       responsive: true, displayModeBar: true, displaylogo: false,
       modeBarButtonsToRemove: ["toImage", "sendDataToCloud"],
