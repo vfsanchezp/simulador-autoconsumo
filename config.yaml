@@ -1,0 +1,59 @@
+pv_mw: 4.9
+pv_reference_mw: 49
+pv_column: "Producción solar"
+
+battery_mwh: 10
+battery_mw: 5
+eta_ch: 0.95
+eta_dis: 0.95
+soc_min: 0.1
+soc_max: 1.0
+soc_ini: 0.5
+
+# ─────────────────────────────────────────────
+# PARÁMETROS ECONÓMICOS (inputs del usuario)
+# ─────────────────────────────────────────────
+# Inversión
+capex_fv_eur_per_kwp: 500          # €/kWp instalado
+capex_bat_eur_per_kwh: 200         # €/kWh de capacidad instalada
+
+# Vida útil y financiación
+vida_util_fv_anos: 25              # años de vida útil de la FV
+tasa_descuento: 0.00000000001               # tasa de descuento anual (e.g. 0.06 = 6%)
+
+# Batería: ciclos garantizados por el fabricante (dato de hoja de especificaciones)
+ciclos_garantizados_fabricante: 7500
+
+# Eficiencia round-trip de la batería (para LCOE batería)
+# Se calcula como eta_ch * eta_dis si no se especifica aquí
+# eta_roundtrip_bat: 0.9025       # opcional; si no se define, se calcula automáticamente
+
+# ─────────────────────────────────────────────
+# NO EDITAR — calculados automáticamente en kpis.py
+# ─────────────────────────────────────────────
+pv_energy_cost_eur_per_mwh: 0.0   # se sobreescribe en runtime
+battery_energy_cost_eur_per_mwh: 0.0  # se sobreescribe en runtime
+
+allow_export: false
+allow_charge_from_grid: false
+
+file_precios: "proyecto_simulacion/data/precios.xlsx"
+file_solar: "proyecto_simulacion/data/solar_49mw.xlsx"
+file_consumo: "proyecto_simulacion/data/consumo.xlsx"
+
+price_column: "Precio total electricidad (€/MWh)"
+consumption_column: "Consumo (MWh)"
+datetime_column: "Fecha"
+
+
+# Definición de “oportunidad FV” (excedente)
+excess_threshold_mwh: 1e-6          # umbral para considerar excedente > 0
+
+# Empuja a “vaciar” antes de la siguiente oportunidad FV (para que pueda cargar)
+end_soc_target: 0.1                 # recomendado = soc_min
+end_soc_penalty_eur_per_mwh: 2000   # penalización por MWh que quede por encima del target al final del periodo
+soc_full_epsilon: 1e-4              # tolerancia para considerar "llena" (soc_max - eps)
+
+# Empuja a que la batería se cargue en las primeras horas en las que haya excedente de FV
+charge_early_bonus_eur_per_mwh: 0.01   # pequeño (desempate)
+charge_early_shape: "linear"          # opcional: "linear" o "flat"

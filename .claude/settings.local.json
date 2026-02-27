@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python:*)",
+      "Bash(where python:*)",
+      "Bash(\"C:/Users/Víctor/AppData/Local/Python/bin/python.exe\":*)",
+      "Bash(\"C:/Users/Víctor/AppData/Local/Python/pythoncore-3.14-64/python.exe\":*)",
+      "Bash(find:*)"
+    ]
+  }
+}

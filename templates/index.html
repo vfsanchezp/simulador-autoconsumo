@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Simulador Biometano</title>
+  <link rel="stylesheet" href="/static/css/style.css" />
+  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+</head>
+<body>
+
+<!-- ── Header minimal ─────────────────────────────── -->
+<header class="site-header"></header>
+
+<!-- ── Spinner overlay ───────────────────────────── -->
+<div class="spinner-overlay" id="spinner-overlay">
+  <img src="/static/img/logo.png" class="loading-logo" alt="Cargando…" />
+  <p class="spinner-text">Ejecutando simulación…</p>
+</div>
+
+<!-- ── Logo + título (encima de ambas columnas) ───── -->
+<div class="page-header">
+  <img src="/static/img/nombre_naturgy.png" class="form-logo" alt="Naturgy" />
+  <p class="form-tagline">Simulación instalación de autoconsumo para planta de biometano</p>
+</div>
+
+<!-- ── Layout ─────────────────────────────────────── -->
+<main class="app-layout">
+
+  <!-- ═══ Panel izquierdo: formulario ═══ -->
+  <aside>
+    <form class="form-panel" id="sim-form" novalidate>
+
+      <!-- ── Sistema Fotovoltaico ── -->
+      <div class="form-section">
+        <p class="section-label">Sistema Fotovoltaico</p>
+
+        <!-- Campo principal siempre visible -->
+        <div class="field">
+          <label for="pv_mw">Potencia instalada FV (MW)</label>
+          <input type="number" id="pv_mw" name="pv_mw"
+                 value="{{ config.pv_mw }}" step="0.1" min="0" />
+        </div>
+
+        <!-- Parámetros avanzados en desplegable -->
+        <details class="advanced-details">
+          <summary class="advanced-summary">
+            <span>Parámetros avanzados</span>
+            <svg class="chevron" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="6 9 12 15 18 9"/>
+            </svg>
+          </summary>
+          <div class="details-body">
+            <div class="field-row">
+              <div class="field">
+                <label for="capex_fv_eur_per_kwp">CAPEX FV (€/kWp)</label>
+                <input type="number" id="capex_fv_eur_per_kwp" name="capex_fv_eur_per_kwp"
+                       value="{{ config.capex_fv_eur_per_kwp }}" step="10" min="0" />
+              </div>
+              <div class="field">
+                <label for="vida_util_fv_anos">Vida útil (años)</label>
+                <input type="number" id="vida_util_fv_anos" name="vida_util_fv_anos"
+                       value="{{ config.vida_util_fv_anos }}" step="1" min="1" />
+              </div>
+            </div>
+          </div>
+        </details>
+      </div>
+
+      <!-- ── Batería ── -->
+      <div class="form-section">
+        <p class="section-label">Batería</p>
+
+        <!-- Campos principales siempre visibles -->
+        <div class="field-row">
+          <div class="field">
+            <label for="battery_mwh">Capacidad (MWh)</label>
+            <input type="number" id="battery_mwh" name="battery_mwh"
+                   value="{{ config.battery_mwh }}" step="0.5" min="0" />
+          </div>
+          <div class="field">
+            <label for="battery_mw">Potencia (MW)</label>
+            <input type="number" id="battery_mw" name="battery_mw"
+                   value="{{ config.battery_mw }}" step="0.5" min="0" />
+          </div>
+        </div>
+
+        <!-- Parámetros avanzados en desplegable -->
+        <details class="advanced-details">
+          <summary class="advanced-summary">
+            <span>Parámetros avanzados</span>
+            <svg class="chevron" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="6 9 12 15 18 9"/>
+            </svg>
+          </summary>
+          <div class="details-body">
+            <div class="field-row">
+              <div class="field">
+                <label for="eta_ch">Eficiencia carga</label>
+                <input type="number" id="eta_ch" name="eta_ch"
+                       value="{{ config.eta_ch }}" step="0.01" min="0" max="1" />
+              </div>
+              <div class="field">
+                <label for="eta_dis">Eficiencia descarga</label>
+                <input type="number" id="eta_dis" name="eta_dis"
+                       value="{{ config.eta_dis }}" step="0.01" min="0" max="1" />
+              </div>
+            </div>
+
+            <div class="field-row">
+              <div class="field">
+                <label for="soc_min">SOC mínimo</label>
+                <input type="number" id="soc_min" name="soc_min"
+                       value="{{ config.soc_min }}" step="0.01" min="0" max="1" />
+              </div>
+              <div class="field">
+                <label for="soc_max">SOC máximo</label>
+                <input type="number" id="soc_max" name="soc_max"
+                       value="{{ config.soc_max }}" step="0.01" min="0" max="1" />
+              </div>
+            </div>
+
+            <div class="field-row">
+              <div class="field">
+                <label for="soc_ini">SOC inicial</label>
+                <input type="number" id="soc_ini" name="soc_ini"
+                       value="{{ config.soc_ini }}" step="0.01" min="0" max="1" />
+              </div>
+              <div class="field">
+                <label for="capex_bat_eur_per_kwh">CAPEX batería (€/kWh)</label>
+                <input type="number" id="capex_bat_eur_per_kwh" name="capex_bat_eur_per_kwh"
+                       value="{{ config.capex_bat_eur_per_kwh }}" step="10" min="0" />
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="ciclos_garantizados_fabricante">Ciclos garantizados fabricante</label>
+              <input type="number" id="ciclos_garantizados_fabricante" name="ciclos_garantizados_fabricante"
+                     value="{{ config.ciclos_garantizados_fabricante }}" step="100" min="0" />
+            </div>
+          </div>
+        </details>
+      </div>
+
+      <!-- ── Económico y operacional (todo en desplegable) ── -->
+      <div class="form-section">
+        <details class="advanced-details">
+          <summary class="advanced-summary advanced-summary--section">
+            <span>Económico y operacional</span>
+            <svg class="chevron" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="6 9 12 15 18 9"/>
+            </svg>
+          </summary>
+          <div class="details-body">
+            <div class="field">
+              <label for="tasa_descuento">Tasa de descuento anual (0 = sin descuento)</label>
+              <input type="number" id="tasa_descuento" name="tasa_descuento"
+                     value="{{ config.tasa_descuento }}" step="0.001" min="0" max="1" />
+            </div>
+
+            <div class="toggle-field">
+              <label for="allow_export">Permitir exportación a red</label>
+              <label class="toggle">
+                <input type="checkbox" id="allow_export" name="allow_export"
+                       {% if config.allow_export %}checked{% endif %} />
+                <span class="toggle-track"></span>
+              </label>
+            </div>
+
+            <div class="toggle-field">
+              <label for="allow_charge_from_grid">Permitir carga desde red</label>
+              <label class="toggle">
+                <input type="checkbox" id="allow_charge_from_grid" name="allow_charge_from_grid"
+                       {% if config.allow_charge_from_grid %}checked{% endif %} />
+                <span class="toggle-track"></span>
+              </label>
+            </div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Campo oculto: referencia escala FV -->
+      <input type="hidden" id="pv_reference_mw" name="pv_reference_mw" value="49" />
+
+      <button type="submit" class="btn-primary" id="run-btn">
+        Ejecutar simulación
+      </button>
+    </form>
+  </aside>
+
+  <!-- ═══ Panel derecho: resultados ═══ -->
+  <section class="results-panel">
+
+    <!-- Estado inicial vacío -->
+    <div class="results-empty" id="results-empty">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+      </svg>
+      <p>Configura los parámetros y ejecuta la simulación</p>
+    </div>
+
+    <!-- Banner de error -->
+    <div class="error-banner" id="error-banner"></div>
+
+    <!-- Resultados -->
+    <div class="results-content" id="results-content">
+
+      <!-- KPI: Costes totales -->
+      <div class="kpi-section">
+        <p class="kpi-section-title">Costes totales</p>
+        <div class="kpi-grid" id="kpi-costes"></div>
+      </div>
+
+      <!-- KPI: Autoconsumo -->
+      <div class="kpi-section">
+        <p class="kpi-section-title">Autoconsumo</p>
+        <div class="kpi-grid" id="kpi-autoconsumo"></div>
+      </div>
+
+      <!-- KPI: Fotovoltaica -->
+      <div class="kpi-section">
+        <p class="kpi-section-title">Fotovoltaica</p>
+        <div class="kpi-grid" id="kpi-fv"></div>
+      </div>
+
+      <!-- KPI: Batería -->
+      <div class="kpi-section">
+        <p class="kpi-section-title">Batería</p>
+        <div class="kpi-grid" id="kpi-bateria"></div>
+      </div>
+
+      <!-- Gráfica interactiva -->
+      <div class="chart-wrapper">
+        <div id="chart-container"></div>
+      </div>
+
+      <!-- Descargas -->
+      <div class="download-row">
+        <button class="btn-secondary" id="btn-download-excel" disabled>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          Descargar Excel
+        </button>
+        <button class="btn-secondary" id="btn-download-html" disabled>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          Descargar Gráfica
+        </button>
+      </div>
+
+    </div><!-- /results-content -->
+  </section>
+
+</main>
+
+<script>
+// ── Metadatos de los 11 KPIs ─────────────────────────────────────────────────
+const KPI_META = {
+  "KPI1_coste_100_red_€":               { label: "Coste 100% red",           unit: "€",      container: "kpi-costes",      fmt: "currency" },
+  "KPI2_coste_FV_y_red_sin_bateria_€":  { label: "Coste FV + red (sin bat.)",unit: "€",      container: "kpi-costes",      fmt: "currency" },
+  "KPI3_coste_FV_bateria_y_red_€":      { label: "Coste FV + batería + red", unit: "€",      container: "kpi-costes",      fmt: "currency" },
+  "KPI4_pct_energia_FV_sin_bateria_%":  { label: "% Energía FV sin batería", unit: "%",      container: "kpi-autoconsumo", fmt: "percent"  },
+  "KPI5_pct_energia_FV_mas_bateria_%":  { label: "% Energía FV + batería",   unit: "%",      container: "kpi-autoconsumo", fmt: "percent"  },
+  "KPI6_horas_equivalentes_FV_h_ano":   { label: "Horas equivalentes FV",    unit: "h/año",  container: "kpi-fv",          fmt: "decimal1" },
+  "KPI7_LCOE_FV_€_MWh":                { label: "LCOE fotovoltaica",         unit: "€/MWh",  container: "kpi-fv",          fmt: "decimal2" },
+  "KPI11_curtailment_FV_%":             { label: "Curtailment FV",            unit: "%",      container: "kpi-fv",          fmt: "percent"  },
+  "KPI8_ciclos_eq_anuales_bateria":     { label: "Ciclos equiv. anuales",     unit: "ciclos", container: "kpi-bateria",     fmt: "decimal1" },
+  "KPI9_vida_util_estimada_bateria_anos":{ label: "Vida útil estimada",       unit: "años",   container: "kpi-bateria",     fmt: "integer"  },
+  "KPI10_LCOE_bateria_€_MWh":          { label: "LCOE batería",              unit: "€/MWh",  container: "kpi-bateria",     fmt: "decimal2" },
+};
+
+function formatValue(value, fmt) {
+  if (value === null || value === undefined) return "N/A";
+  switch (fmt) {
+    case "currency":  return new Intl.NumberFormat("es-ES", { maximumFractionDigits: 0 }).format(value);
+    case "percent":   return value.toFixed(2);
+    case "decimal1":  return value.toFixed(1);
+    case "decimal2":  return value.toFixed(2);
+    case "integer":   return Math.floor(value).toLocaleString("es-ES");
+    default:          return String(value);
+  }
+}
+
+function buildKpiCard(value, meta, savingPct) {
+  const savingHtml = (savingPct != null)
+    ? `<div class="kpi-saving">${savingPct.toFixed(1)}% de ahorro</div>`
+    : "";
+  return `
+    <div class="kpi-card">
+      <div class="kpi-label">${meta.label}</div>
+      <div class="kpi-value">${formatValue(value, meta.fmt)}<span class="kpi-unit">${meta.unit}</span></div>
+      ${savingHtml}
+    </div>`;
+}
+
+function renderKPIs(kpis) {
+  ["kpi-costes","kpi-autoconsumo","kpi-fv","kpi-bateria"].forEach(id => {
+    document.getElementById(id).innerHTML = "";
+  });
+
+  const base = kpis["KPI1_coste_100_red_€"];
+
+  for (const [key, meta] of Object.entries(KPI_META)) {
+    const value = kpis[key] !== undefined ? kpis[key] : null;
+
+    let savingPct = null;
+    if (base && base > 0 && value !== null) {
+      if (key === "KPI2_coste_FV_y_red_sin_bateria_€" ||
+          key === "KPI3_coste_FV_bateria_y_red_€") {
+        savingPct = ((base - value) / base) * 100;
+      }
+    }
+
+    document.getElementById(meta.container).insertAdjacentHTML(
+      "beforeend", buildKpiCard(value, meta, savingPct)
+    );
+  }
+}
+
+function setLoading(loading) {
+  document.getElementById("spinner-overlay").classList.toggle("active", loading);
+  document.getElementById("run-btn").disabled = loading;
+  document.getElementById("run-btn").textContent = loading ? "Ejecutando…" : "Ejecutar simulación";
+}
+
+function showResults() {
+  document.getElementById("results-empty").style.display = "none";
+  document.getElementById("results-content").classList.add("visible");
+  document.querySelector(".app-layout").classList.add("has-results");
+  document.querySelector(".form-tagline").style.display = "none";
+}
+
+function showError(msg) {
+  const banner = document.getElementById("error-banner");
+  banner.textContent = "Error: " + msg;
+  banner.classList.add("visible");
+  document.getElementById("results-empty").style.display = "none";
+  document.getElementById("results-content").classList.remove("visible");
+}
+
+function clearError() {
+  const banner = document.getElementById("error-banner");
+  banner.textContent = "";
+  banner.classList.remove("visible");
+}
+
+function collectFormValues() {
+  const params = {};
+  document.getElementById("sim-form").querySelectorAll("input[name]").forEach(input => {
+    if (input.type === "checkbox") {
+      params[input.name] = input.checked;
+    } else {
+      params[input.name] = parseFloat(input.value);
+    }
+  });
+  return params;
+}
+
+let currentExcelToken = null;
+let currentHtmlToken  = null;
+
+document.getElementById("btn-download-excel").addEventListener("click", () => {
+  if (currentExcelToken) {
+    window.location.href = "/api/download/" + currentExcelToken;
+    document.getElementById("btn-download-excel").disabled = true;
+    currentExcelToken = null;
+  }
+});
+
+document.getElementById("btn-download-html").addEventListener("click", () => {
+  if (currentHtmlToken) {
+    window.location.href = "/api/download-html/" + currentHtmlToken;
+    document.getElementById("btn-download-html").disabled = true;
+    currentHtmlToken = null;
+  }
+});
+
+document.getElementById("sim-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  clearError();
+  setLoading(true);
+
+  try {
+    const response = await fetch("/api/simulate", {
+      method:  "POST",
+      headers: { "Content-Type": "application/json" },
+      body:    JSON.stringify(collectFormValues()),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || data.status === "error") {
+      throw new Error(data.message || "Error desconocido en el servidor");
+    }
+
+    renderKPIs(data.kpis);
+
+    const fig = JSON.parse(data.plot_json);
+    Plotly.react("chart-container", fig.data, fig.layout, {
+      responsive: true, displayModeBar: true, displaylogo: false,
+      modeBarButtonsToRemove: ["toImage", "sendDataToCloud"],
+    });
+
+    currentExcelToken = data.excel_token;
+    currentHtmlToken  = data.html_token;
+    document.getElementById("btn-download-excel").disabled = false;
+    document.getElementById("btn-download-html").disabled  = false;
+
+    showResults();
+
+  } catch (err) {
+    showError(err.message);
+  } finally {
+    setLoading(false);
+  }
+});
+</script>
+
+</body>
+</html>
