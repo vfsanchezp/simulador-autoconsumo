@@ -19,6 +19,16 @@ app = Flask(
     static_folder=os.path.join(BASE_DIR, "static"),
 )
 
+import traceback
+from flask import jsonify, request
+
+@app.errorhandler(Exception)
+def handle_exception(e):
+    # Esto imprime SIEMPRE el traceback completo en logs
+    app.logger.error("Excepción no controlada: %s", e)
+    app.logger.error(traceback.format_exc())
+    return jsonify({"ok": False, "error": "Error interno del servidor"}), 500
+
 # Almacenamiento en memoria para descargas (uso único)
 _excel_store: dict[str, bytes] = {}
 _html_store: dict[str, str] = {}
